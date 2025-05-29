@@ -1,0 +1,61 @@
+---
+title: "GDP Emissions"
+output: html_document
+date: "2025-05-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# Load libraries
+library(dplyr)
+
+# Read in the CSV
+data <- read.csv("Filtered_GDP_and_CO__Emissions_Data.csv")
+
+# Filter for one country (e.g., New Zealand)
+nz_data <- data %>%
+  filter(Entity == "New Zealand") %>%
+  select(Year, GDP, CO2_Production) %>%
+  na.omit()
+
+# Create GDP squared
+nz_data$GDP_Squared <- nz_data$GDP^2
+
+# Run the quadratic model
+model <- lm(CO2_Production ~ GDP + GDP_Squared, data = nz_data)
+
+# Summary of the model
+summary(model)
+
+# Plot GDP vs CO2 with regression curve
+library(ggplot2)
+
+ggplot(nz_data, aes(x = GDP, y = CO2_Production)) +
+  geom_point() +
+  stat_smooth(method = "lm", formula = y ~ x + I(x^2), se = FALSE, color = "blue") +
+  ggtitle("Environmental Kuznets Curve - New Zealand") +
+  xlab("GDP (PPP, constant 2021 $)") +
+  ylab("CO2 Emissions (Production-based)")
+
+# With print() – this will output the model summary in the Console
+print(summary(model))
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
